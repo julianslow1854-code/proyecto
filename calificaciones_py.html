@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Calificaciones</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --success: #34d399;
+      --error: #f87171;
+      --text: #e8eaf6;
+      --muted: #7b80a0;
+      --border: #2e3250;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(108,99,255,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(167,139,250,0.08) 0%, transparent 50%);
+    }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeDown 0.6s ease both;
+    }
+    header .icon {
+      font-size: 2.5em;
+      margin-bottom: 12px;
+      display: block;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.6em;
+      background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 0.95em;
+      letter-spacing: 0.5px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25em;
+      color: var(--accent2);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* FORM */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 0.78em;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95em;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+    input::placeholder { color: var(--muted); }
+
+    /* BUTTON */
+    .btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1em;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* SPINNER */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn.loading .spinner { display: block; }
+    .btn.loading .btn-text { display: none; }
+
+    /* ALERT */
+    .alert {
+      display: none;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      font-weight: 500;
+      margin-top: 20px;
+      animation: fadeUp 0.3s ease both;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert.show { display: flex; }
+    .alert.success {
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.3);
+      color: var(--success);
+    }
+    .alert.error {
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.3);
+      color: var(--error);
+    }
+
+    /* HISTORIAL */
+    .historial {
+      width: 100%;
+      max-width: 520px;
+      margin-top: 28px;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+    .historial h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1em;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .historial-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .historial-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeUp 0.3s ease both;
+    }
+    .historial-item .info .nombre {
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    .historial-item .info .materia {
+      font-size: 0.8em;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .historial-item .calif {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5em;
+      color: var(--accent2);
+    }
+    .historial-item .calif.alta { color: var(--success); }
+    .historial-item .calif.baja { color: var(--error); }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85em;
+      padding: 20px;
+    }
+
+    /* CONFIGURACIÓN API */
+    .api-config {
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 24px;
+      animation: fadeDown 0.6s ease both;
+    }
+    .api-config details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+    }
+    .api-config summary {
+      cursor: pointer;
+      font-size: 0.82em;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .api-config summary::-webkit-details-marker { display: none; }
+    .api-url-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .api-url-row input {
+      flex: 1;
+      font-size: 0.85em;
+      padding: 10px 14px;
+    }
+    .api-url-row button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85em;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="icon"></span>
+    <h1>Sistema de Calificaciones</h1>
+    <p>Registra calificaciones conectado a tu API FastAPI</p>
+  </header>
+
+  <!-- Config API -->
+  <div class="api-config">
+    <details>
+      <summary> Configuración de API &nbsp;·&nbsp; <span id="api-status">http://localhost:8000</span></summary>
+      <div class="api-url-row">
+        <input type="text" id="api-url-input" placeholder="http://localhost:8000" value="http://localhost:8000">
+        <button onclick="guardarURL()">Guardar</button>
+      </div>
+    </details>
+  </div>
+
+  <!-- Formulario -->
+  <div class="card">
+    <div class="card-title"> Nueva Calificación</div>
+
+    <div class="form-group">
+      <label>Nombre del Alumno</label>
+      <input type="text" id="alumno" placeholder="Ej. María García">
+    </div>
+
+    <div class="form-group">
+      <label>Materia</label>
+      <input type="text" id="materia" placeholder="Ej. Matemáticas">
+    </div>
+
+    <div class="form-group">
+      <label>Calificación (0 - 10)</label>
+      <input type="number" id="calificacion" placeholder="Ej. 9.5" min="0" max="10" step="0.1">
+    </div>
+
+    <button class="btn" id="btn-enviar" onclick="enviarCalificacion()">
+      <div class="spinner"></div>
+      <span class="btn-text">➕ Agregar Calificación</span>
+    </button>
+
+    <div class="alert" id="alerta"></div>
+  </div>
+
+  <!-- Historial local -->
+  <div class="historial">
+    <h2> Registros de esta sesión</h2>
+    <div class="historial-list" id="historial-list">
+      <div class="empty">Aún no hay registros en esta sesión.</div>
+    </div>
+  </div>
+
+  <script>
+    let API_BASE = 'http://localhost:8000';
+    const registros = [];
+
+    function guardarURL() {
+      const val = document.getElementById('api-url-input').value.trim();
+      if (val) {
+        API_BASE = val.replace(/\/$/, '');
+        document.getElementById('api-status').textContent = API_BASE;
+        mostrarAlerta(' URL actualizada: ' + API_BASE, 'success');
+      }
+    }
+
+    async function enviarCalificacion() {
+      const alumno = document.getElementById('alumno').value.trim();
+      const materia = document.getElementById('materia').value.trim();
+      const calificacion = parseFloat(document.getElementById('calificacion').value);
+      const btn = document.getElementById('btn-enviar');
+
+      // Validación
+      if (!alumno || !materia || isNaN(calificacion)) {
+        mostrarAlerta('⚠️ Por favor completa todos los campos.', 'error');
+        return;
+      }
+      if (calificacion < 0 || calificacion > 10) {
+        mostrarAlerta('⚠️ La calificación debe estar entre 0 y 10.', 'error');
+        return;
+      }
+
+      // Loading
+      btn.disabled = true;
+      btn.classList.add('loading');
+
+      try {
+        const response = await fetch(`${API_BASE}/calificaciones/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ alumno, materia, calificaciones: calificacion })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          mostrarAlerta(` Calificación registrada correctamente (ID: ${data.id ?? '—'})`, 'success');
+          agregarAlHistorial(alumno, materia, calificacion);
+          limpiarFormulario();
+        } else {
+          const err = await response.json();
+          mostrarAlerta(` Error del servidor: ${JSON.stringify(err.detail ?? err)}`, 'error');
+        }
+      } catch (e) {
+        mostrarAlerta(' No se pudo conectar con la API. Verifica que FastAPI esté corriendo.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+      }
+    }
+
+    function agregarAlHistorial(alumno, materia, calif) {
+      registros.unshift({ alumno, materia, calif });
+      renderHistorial();
+    }
+
+    function renderHistorial() {
+      const lista = document.getElementById('historial-list');
+      if (registros.length === 0) {
+        lista.innerHTML = '<div class="empty">Aún no hay registros en esta sesión.</div>';
+        return;
+      }
+      lista.innerHTML = registros.map(r => {
+        const clase = r.calif >= 8 ? 'alta' : r.calif < 6 ? 'baja' : '';
+        return `
+          <div class="historial-item">
+            <div class="info">
+              <div class="nombre">${r.alumno}</div>
+              <div class="materia">${r.materia}</div>
+            </div>
+            <div class="calif ${clase}">${r.calif.toFixed(1)}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('alumno').value = '';
+      document.getElementById('materia').value = '';
+      document.getElementById('calificacion').value = '';
+    }
+
+    function mostrarAlerta(msg, tipo) {
+      const el = document.getElementById('alerta');
+      el.textContent = msg;
+      el.className = `alert ${tipo} show`;
+      setTimeout(() => el.classList.remove('show'), 5000);
+    }
+
+    // Enter para enviar
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') enviarCalificacion();
+    });
+  </script>
+</body>
+</html>
