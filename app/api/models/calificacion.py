@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from database import Base
+from core.database import Base
 
 class Calificacion(Base):
     __tablename__ = "calificaciones"
@@ -9,5 +9,6 @@ class Calificacion(Base):
     materia = Column(String)
     calificacion = Column(Float)
     
+
 
 

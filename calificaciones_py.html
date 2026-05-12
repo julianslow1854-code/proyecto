@@ -371,11 +371,11 @@
 
       // Validación
       if (!alumno || !materia || isNaN(calificacion)) {
-        mostrarAlerta('⚠️ Por favor completa todos los campos.', 'error');
+        mostrarAlerta(' Por favor completa todos los campos.', 'error');
         return;
       }
       if (calificacion < 0 || calificacion > 10) {
-        mostrarAlerta('⚠️ La calificación debe estar entre 0 y 10.', 'error');
+        mostrarAlerta(' La calificación debe estar entre 0 y 10.', 'error');
         return;
       }
 
@@ -387,7 +387,7 @@
         const response = await fetch(`${API_BASE}/calificaciones/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ alumno, materia, calificaciones: calificacion })
+          body: JSON.stringify({ alumno, materia, calificacion })
         });
 
         if (response.ok) {
