@@ -36,3 +36,8 @@ def crear_calificacion(data: schemas.CalificacionCreate, db: Session = Depends(g
 @app.get("/calificaciones/", response_model=list[schemas.CalificacionResponse])
 def obtener_calificaciones(db: Session = Depends(get_db)):
     return crud.obtener_calificaciones(db)
+
+
+@app.get("/")
+def home():
+    return {"mensaje": "API de calificaciones funcionando"}
